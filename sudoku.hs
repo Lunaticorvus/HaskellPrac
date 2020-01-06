@@ -12,6 +12,11 @@ main = do
 
     print $ valid $ (lines contents)
 
+    putStrLn $ unlines $ map (intersperse ' ') $ map (\(x, y) -> x:y) $ zip ['A'..] $ (doInput 1 1 '1' (lines contents))
+
+doInput :: Int -> Int -> Char -> [[Char]] -> [[Char]]
+doInput x y c b = (take x b) ++ [(take y (b !! x)) ++ [c] ++ (drop (y + 1) (b !! x))] ++ (drop (x + 1) b)
+
 generate f = chunksOf 9 $ liftA2 f [0..8] [0..8]
 validChunk d c = (\x -> (length x) == (length $ nub x) ) $ filter (/= '_') $ map (\(i, j) -> d !! i !! j) c
 validChunks d cs = foldl1 (&&) $ map (validChunk d) cs
