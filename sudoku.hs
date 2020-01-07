@@ -3,16 +3,17 @@ import Data.List
 import Data.Char
 import Control.Applicative
 import Data.List.Split
-
+import Data.Maybe
 
 main = do
     contents <- readFile "input.txt"
-    -- putStr $ unlines (map (intersperse ' ') ([(" " ++ ['1'..'9'])] ++ (attachHead (pred 'A') (lines contents))))
-    putStrLn $ unlines $ map (intersperse ' ') $ map (\(x, y) -> x:y) $ zip ['A'..] $ lines contents 
 
-    print $ valid $ (lines contents)
+    let board = lines contents
 
-    putStrLn $ unlines $ map (intersperse ' ') $ map (\(x, y) -> x:y) $ zip ['A'..] $ (doInput 1 1 '3' (lines contents))
+    prettyPrint board
+    prettyPrint $ fromJust $ solve (filter (\(i, j) -> (lines contents) !! i !! j == '_') $ concat $ generate (,)) (Just $ lines contents)
+
+prettyPrint b = putStrLn $ unlines $ map (intersperse ' ') $ (' ':['1'..'9']):(map (\(x, y) -> x:y) $ zip ['A'..] $ b)
 
 doInput :: Int -> Int -> Char -> [[Char]] -> [[Char]]
 doInput x y c b = generate (\i j -> if i == x && j == y then c else b !! i !! j)
@@ -20,7 +21,10 @@ doInput x y c b = generate (\i j -> if i == x && j == y then c else b !! i !! j)
     -- '_' -> (take x b) ++ [(take y (b !! x)) ++ [c] ++ (drop (y + 1) (b !! x))] ++ (drop (x + 1) b)
     -- otherwise -> b
 
-
+solve :: [(Int, Int)] -> Maybe [[Char]] -> Maybe [[Char]]
+solve [] b = b
+solve _ Nothing = Nothing
+solve (x:xs) (Just b) = listToMaybe $ catMaybes $ map (solve xs) $ map Just $ filter valid $ map (\c -> doInput (fst x) (snd x) c b) ['1'..'9']
 
 generate f = chunksOf 9 $ liftA2 f [0..8] [0..8]
 validChunk d c = (\x -> (length x) == (length $ nub x) ) $ filter (/= '_') $ map (\(i, j) -> d !! i !! j) c
