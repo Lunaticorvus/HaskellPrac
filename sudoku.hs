@@ -12,10 +12,15 @@ main = do
 
     print $ valid $ (lines contents)
 
-    putStrLn $ unlines $ map (intersperse ' ') $ map (\(x, y) -> x:y) $ zip ['A'..] $ (doInput 1 1 '1' (lines contents))
+    putStrLn $ unlines $ map (intersperse ' ') $ map (\(x, y) -> x:y) $ zip ['A'..] $ (doInput 1 1 '3' (lines contents))
 
 doInput :: Int -> Int -> Char -> [[Char]] -> [[Char]]
-doInput x y c b = (take x b) ++ [(take y (b !! x)) ++ [c] ++ (drop (y + 1) (b !! x))] ++ (drop (x + 1) b)
+doInput x y c b = generate (\i j -> if i == x && j == y then c else b !! i !! j)
+-- doInput x y c b = case b !! x !! y of
+    -- '_' -> (take x b) ++ [(take y (b !! x)) ++ [c] ++ (drop (y + 1) (b !! x))] ++ (drop (x + 1) b)
+    -- otherwise -> b
+
+
 
 generate f = chunksOf 9 $ liftA2 f [0..8] [0..8]
 validChunk d c = (\x -> (length x) == (length $ nub x) ) $ filter (/= '_') $ map (\(i, j) -> d !! i !! j) c
